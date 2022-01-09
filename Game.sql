@@ -8,51 +8,77 @@
 -- 2. Run game (with parameter: lang=EN)
 
 
+USE [TSQLWordle];
+GO
+
+
 CREATE OR ALTER PROCEDURE dbo.WordGuess
-    @lang char(3)
+/*
+
+DESC: Popular word game called Wordle for T-SQL 
+      Guess a word of five letters in 6 tries
+
+AUTH: Tomaz Kastrun
+DaTE: 10 January 2022
+
+USAGE:
+	EXEC dbo.WordGuess 
+		 @lang='en'
+		--,@guess='aabbb' --WRONG GUESS
+		,@guess = 'table'
+
+*/
+
+
+     @lang char(3)
     ,@guess NVARCHAR(10)
 AS 
 BEGIN
- 
-    IF (OBJECT_ID(N'dbo.tempTable'))  IS NOT NULL
-    BEGIN  
-        DECLARE @nof_guess INT = (SELECT MAX(nof_guess) FROM tempTable)
-        IF @nof_guess < 6
-        BEGIN
-            INSERT INTO dbo.TempTable
-            SELECT 
-                (SELECT TOP 1 secrets  FROM dbo.tempTable) as Secrets 
-                ,@nof_guess + 1 aS nof_guess
-                ,@guess;
 
-            SELECT * FROM TempTable;
-       END
-        DECLARE @nof_guess2 INT = (SELECT MAX(nof_guess) FROM tempTable)
-        IF @nof_guess2 = 6
-        BEGIN
-            SELECT 'End'
-             DROP TABLE IF EXISTS dbo.TempTable
-        END
+	-- check if the word exists / is legitt :)
+	IF (SELECT COUNT(*) FROM  [dbo].[Words] where word = @guess AND lang = @lang) = 0
+	BEGIN 
+		SELECT 'Wrong word!' AS [Message from the Game]
+		RETURN
 
-    END 
-    ELSE
-    BEGIN
-            
-            CREATE TABLE dbo.tempTable (id int identity(1,1), secrets NVARCHAR(10), nof_guess INT, guess_word NVARCHAR(10), valid INT NULL)
-    
-            DECLARE @secret NVARCHAR(10) 
-            SET @secret = (SELECT top 1 word from dbo.words ORDER By newid())
+	END
+	
+	-- create table and generate secret
+	IF (OBJECT_ID(N'dbo.tempTable'))  IS  NULL
+	BEGIN 
+	     CREATE TABLE dbo.tempTable (id int identity(0,1), secrets NVARCHAR(10), nof_guess INT, guess_word NVARCHAR(10), valid INT NULL)
+		 DECLARE @secret NVARCHAR(10) = (SELECT top 1 word from dbo.words ORDER By newid())
 
             INSERT INTO dbo.tempTable (secrets, nof_guess,guess_word, valid)
-            SELECT @secret
-            ,1
-            ,@guess;
-            ,1 -- as valid word
-            
-            SELECT * FROM tempTAble;
-            --SELECT secrets 'secret Stored' FROM dbo.tempTable
-    END
+            SELECT 
+			 @secret AS secrets
+            ,0 AS nof_guess
+            ,null AS guess_word
+            ,1 AS valid -- as valid word
+	END
 
+    
+	-- guessing part
+    DECLARE @nof_guess INT = (SELECT MAX(nof_guess) FROM tempTable)
+    IF @nof_guess < 6
+    BEGIN
+        INSERT INTO dbo.TempTable
+        SELECT 
+            (SELECT TOP 1 secrets  FROM dbo.tempTable) as Secrets 
+            ,@nof_guess + 1 aS nof_guess
+            ,@guess
+			,1 as Valid;
+
+        SELECT * FROM TempTable;
+    END
+	DECLARE @nof_guess2 INT = (SELECT MAX(nof_guess) FROM tempTable)
+	IF @nof_guess2 = 6
+	BEGIN
+		SELECT 'End'
+		DROP TABLE IF EXISTS dbo.TempTable
+	END
+
+   
 END;
 GO
 
@@ -73,6 +99,7 @@ exec dbo.WordGuess 'en','actor'
 --- Check words
 IF (SELECT COUNT(*) FROM words AS w JOIN tempTable  as tt ON w.word = tt.word WHERE id = (SELECT MAX(ID) from temptable) > 0 -- beseda je prava
     
+
 declare @secret nchar(5) = 'otomz'
 declare @guess nchar(5)  = 'tooez'
 
@@ -148,3 +175,8 @@ From gray
 )
 select letter, col,pos from aaa
 order by pos asc
+
+select * from keyboard
+where lang ='EN'
+
+
