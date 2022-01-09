@@ -265,7 +265,7 @@ BEGIN
 	DECLARE @nof_guess2 INT = (SELECT MAX(nof_guess) FROM dbo.tempTable)
 	IF @nof_guess2 = 6
 	BEGIN
-		SELECT 'End'
+		SELECT 'End' AS [Message from the Game]
 		DROP TABLE IF EXISTS dbo.TempTable;
 		DROP TABLE IF EXISTS dbo.tempKeyboard;
 	END
@@ -273,7 +273,7 @@ BEGIN
 
 	IF (UPPER(@secret) = (@guess))
 	BEGIN
-		SELECT 'Yees, Won!'
+		SELECT 'Yees, Won!' AS [Message from the Game]
 		DROP TABLE IF EXISTS dbo.TempTable;
 		DROP TABLE IF EXISTS dbo.tempKeyboard;
 	END
