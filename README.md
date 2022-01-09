@@ -82,7 +82,6 @@ After the initial run, you have to find a clever way to find the next 5-letter w
 	EXEC dbo.WordGuess 
 		 @lang='EN'
 		,@guess = 'shirt'
-
 ```
 
 <div style="text-align:center"><img src="imgs/gameplay1.png" alt="Wordle with T-SQL" style="width:400px;"/></div>
@@ -94,7 +93,6 @@ After the second try, this looks very good and the final word should be '''short
 	EXEC dbo.WordGuess 
 		 @lang='EN'
 		,@guess = 'short'
-
 ```
 And you win the game!
 
