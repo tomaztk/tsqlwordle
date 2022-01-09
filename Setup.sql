@@ -1,3 +1,16 @@
+/* ****************************************************
+Script       :  Setup.sql
+Purpose      : Installation script for setting up words
+Date Created : 10 January 2022
+Description  : Popular word game called Wordle in T-SQL 
+			   for Microsoft SQL Server 2017+
+			   Based on https://powerlanguage.co.uk/wordle/ 
+Author		 : Tomaz Kastrun (Twitter: @tomaz_tsql)
+				  			 (Github: github.com\tomaztk)
+
+******************************************************** */
+
+
 USE Master;
 GO
 
@@ -85,7 +98,7 @@ SELECT
     ,'IT' as lang
 
  FROM TempWords;
- -- 
+  -- (0 row(s) affected) 
 
   -- Insert German words
 DROP TABLE IF EXISTS dbo.TempWords;
@@ -107,9 +120,7 @@ SELECT
     ,'DE' as lang
 
  FROM TempWords;
- -- 
-
-
+ -- (0 row(s) affected) 
 
 DROP TABLE IF EXISTS dbo.Keyboard;
 GO
@@ -136,6 +147,5 @@ SELECT 2, 'A; S; D; F; G; H; J; K; L', 'IT' UNION ALL
 SELECT 3, 'Y; X; C; V; B; N; M', 'IT'   
 
 
-SELECT * FROM dbo.Keyboard
-SELECT * FROM dbo.Words
+
 

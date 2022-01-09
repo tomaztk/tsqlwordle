@@ -1,45 +1,55 @@
---  https://powerlanguage.co.uk/wordle/ 
--- Guess a word in 6 tries
-
--- 1. insert word 
-    -- returns --> result 
-    -- returns --> keyboard (coloured)
-
--- 2. Run game (with parameter: lang=EN)
-
-
 USE [TSQLWordle];
 GO
 
 
 CREATE OR ALTER PROCEDURE dbo.WordGuess
 /*
+Script       :  Game.sql
+Procedure	 : dbo.WordGuess
+Purpose      : T-SQL stored procedure for playing Wordle in T-SQL
 
-DESC: Popular word game called Wordle for T-SQL 
-
-AUTH: Tomaz Kastrun
-DaTE: 10 January 2022
-
-USAGE:
+Date Created : 10 January 2022
+Description  : Popular word game called Wordle in T-SQL 
+			   for Microsoft SQL Server 2017+
+			   Based on https://powerlanguage.co.uk/wordle/ 
+Author		 : Tomaz Kastrun (Twitter: @tomaz_tsql)
+				  			 (Github: github.com\tomaztk)
+Parameters   : Two input parameters
+					 @lang -- defines language, thesaurus and keyboard
+					 @guess -- 5-letter word for guessing
+Output        :
+				Result of the game:
+					Table: dbo.TempTable - game play and tries		
+					Table: dbo.TempKeyboard - coloured used keys 
+Usage:
 	EXEC dbo.WordGuess 
 		 @lang='EN'
 		--,@guess='aabbb' --WRONG GUESS
-		--,@guess = 'right' --'hotel'
-		,@guess = 'hotel'
+		,@guess = 'right' 
+		--,@guess = 'hotel'
+		--,@guess = 'agent' -- 'hotel'
+		--,@guess = 'smile'
 
-	Keyboard denoting:
+
+Colour denoting in first output (gameplay):
 		 ' A ' is gray 
 		{{ A }} is Yellow
 		[[ A ]] is Green
 
-*/
+Keyboard denoting in second output (keyboard):
+		  # is grayed-out
+		{{ A }} is Yellow
+		[[ A ]] is Green
 
+*/
 
      @lang char(3)
     ,@guess NVARCHAR(10)
 AS 
 BEGIN
 
+	
+	
 	-- check if the word exists / is legitt :)
 	IF (SELECT COUNT(*) FROM  [dbo].[Words] where word = @guess AND lang = @lang) = 0
 	BEGIN 
@@ -66,11 +76,11 @@ BEGIN
 	-- create table for temp keyboard
 	IF (OBJECT_ID(N'dbo.tempKeyboard')) IS NULL
 	BEGIN
-		CREATE TABLE dbo.tempKeyboard (id INT, Krow INT, Kkey NVARCHAR(100))
-		INSERT INTO dbo.tempKeyboard (id,Krow, Kkey)
+		CREATE TABLE dbo.tempKeyboard (Krow INT, Kkey NVARCHAR(100))
+		INSERT INTO dbo.tempKeyboard (Krow, Kkey)
 		SELECT
-			id
-			,Krow
+			--id
+			 Krow
 			,Kkey
 		FROM dbo.Keyboard
 		WHERE
@@ -82,11 +92,14 @@ BEGIN
     DECLARE @nof_guess INT = (SELECT MAX(nof_guess) FROM tempTable)
     IF @nof_guess < 6
     BEGIN
+
 	/*
 	ADD part for determing colours
 	*/
+	DROP TABLE IF EXISTS #tt
 	DECLARE @guess_sol NVARCHAR(100) = ''
-	
+	declare @guess_sol2 nvarchar(100) = ''
+	SET @secret = (SELECT secrets FROM dbo.TempTable WHERE nof_guess = 0)
 			;WITH sec AS (
 
 				SELECT
@@ -129,8 +142,8 @@ BEGIN
 				cross join sec
 				where   
 					g.letter = sec.letter
-				and g.rn <> sec.rn
-				and not exists (Select * from green  as gg 
+				AND g.rn <> sec.rn
+				AND NOT EXISTS (Select * from green  as gg 
 								where gg.gul = g.letter 
 								  and gg.gurn = g.rn)
 
@@ -166,13 +179,21 @@ BEGIN
 			LEFT JOIN gu as g
 			ON g.rn = a.pos
 			)
+		SELECT * 
+		INTO #tt
+		From final
+
 
 		SELECT @guess_sol = COALESCE(@guess_sol + ' ', '') + reco
-		FROM final
+		FROM #tt
 		ORDER BY pos ASC
 
 
-	
+		SELECT @guess_sol2 = COALESCE(@guess_sol2 + ' ,', '') + reco
+		FROM #tt
+		ORDER BY pos ASC
+
+
 	-- store results
         INSERT INTO dbo.TempTable
         SELECT 
@@ -181,27 +202,81 @@ BEGIN
             ,@guess_sol 
 			,1 as Valid;
 
-        SELECT * FROM TempTable;
+        SELECT 
+			 nof_guess AS [Try Number:]
+			,guess_word AS [Guessed Word:]
+		FROM TempTable
+		WHERE
+			ID > 0;
+ 
+
+ 	/*
+	ADD part for keyboard denotation
+	*/
+		DROP TABLE IF EXISTS #tt2
+		SELECT 
+			 kkey
+			,krow
+			,ROW_NUMBER() OVER (ORDER BY krow) AS rn
+			,TRIM([value]) AS [value]
+		into #tt2	
+		from dbo.tempkeyboard
+		CROSS APPLY string_split(kkey, ';')
+
+
+		DROP TABLE IF EXISTS #aa
+		SELECT 
+			[value] 
+			,TRIM(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE([value], ' [[ ',''), ' ]] ',''),' {{ ',''),' }} ',''), ' '' ','')) AS kak
+		INTO #aa
+		FROM STRING_SPLIT(@guess_sol2, ',')
+		WHERE
+			[value] <> ''
+
+		-- updating values
+		UPDATE t
+		SET 
+			t.[value] = a.[value]
+		FROM #tt2 AS t
+		JOIN #aa AS a
+		ON a.kak = t.[value]
+
+		UPDATE #tt2
+		SET 
+			[value] = '#'
+		WHERE
+			[value] LIKE ' ''% '
+
+		-- Creating update keyboard outlook
+		DROP TABLE IF EXISTS dbo.tempKeyboard
+		SELECT 
+		  krow
+		 ,STRING_AGG([value], '; ') AS kkey
+		INTO dbo.tempKeyboard
+		FROM #tt2
+		GROUP BY krow
+		ORDER BY krow asc
+
+		-- Output the keyboard
+		SELECT * FROM  dbo.tempKeyboard
+
     END
-	DECLARE @nof_guess2 INT = (SELECT MAX(nof_guess) FROM tempTable)
+
+	DECLARE @nof_guess2 INT = (SELECT MAX(nof_guess) FROM dbo.tempTable)
 	IF @nof_guess2 = 6
 	BEGIN
 		SELECT 'End'
-		DROP TABLE IF EXISTS dbo.TempTable
+		DROP TABLE IF EXISTS dbo.TempTable;
+		DROP TABLE IF EXISTS dbo.tempKeyboard;
 	END
 
-   
+
+	IF (UPPER(@secret) = (@guess))
+	BEGIN
+		SELECT 'Yees, Won!'
+		DROP TABLE IF EXISTS dbo.TempTable;
+		DROP TABLE IF EXISTS dbo.tempKeyboard;
+	END
+
 END;
 GO
-
-
-exec dbo.WordGuess 'en', 'otter'
-exec dbo.WordGuess 'en','other'
-exec dbo.WordGuess 'en','alter'
-exec dbo.WordGuess 'en','acter'
-exec dbo.WordGuess 'en','bladr'
-exec dbo.WordGuess 'en','actor'
-
-
-
-    
