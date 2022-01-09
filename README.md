@@ -85,7 +85,7 @@ After the initial run, you have to find a clever way to find the next 5-letter w
 
 ```
 
-<div style="text-align:center"><img src="imgs/gameplay1.png" alt="Wordle with T-SQL" style="width:600px;"/></div>
+<div style="text-align:center"><img src="..imgs/gameplay1.png" alt="Wordle with T-SQL" style="width:600px;"/></div>
 
 After the second try, this looks very good and the final word should be '''short'''.
 
@@ -98,7 +98,7 @@ After the second try, this looks very good and the final word should be '''short
 ```
 And you win the game!
 
-<div style="text-align:center"><img src="imgs/gameplay2.png" alt="Wordle with T-SQL" style="width:600px;"/></div>
+<div style="text-align:center"><img src="..imgs/gameplay2.png" alt="Wordle with T-SQL" style="width:600px;"/></div>
 
 
 ## Forking or cloning the repository
