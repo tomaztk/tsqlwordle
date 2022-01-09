@@ -4,6 +4,9 @@ Popular word guessing game - Wordle written in T-SQL. Github repository gives yo
 
 Game outlook and design is based on the concept of https://powerlanguage.co.uk/wordle/ 
 
+Original Wordle gameplay outlook:
+<div style="text-align:center"><img src="imgs/wordle_gameplay.png" alt="Original Wordle gameplay" style="width:300px;"/></div>
+
 ## About the game
 
 It is a word guessing game. You have to quess the Wordle in six (or less) tries. Words must be in the thesaurus list, based on the dictionary. A letter that is correctly guessed (position and letter) turns green (in T-SQL version, the letter is enclosed in [[ A ]]), a letter that is correct but placed in wrong wrong position turns yellos (in T-SQL version, the letter is enclosed in {{ A }}) and an incorrect letter turns gray (in T-SQL version, the letter is enclosed in ' A ').
