@@ -9,7 +9,10 @@ Original Wordle gameplay outlook:
 
 ## About the game
 
-It is a word guessing game. You have to guess the Wordle in six (or less) tries. Words must be in the thesaurus list, based on the dictionary. A letter that is correctly guessed (position and letter) turns green (in T-SQL version, the letter is enclosed in [[ A ]]), a letter that is correct but placed in wrong wrong position turns yellos (in T-SQL version, the letter is enclosed in {{ A }}) and an incorrect letter turns gray (in T-SQL version, the letter is enclosed in ' A ').
+It is a word guessing game. You have to guess the Wordle in six (or less) tries. Words must be in the word list, based on the dictionary. 
+1. A letter that is correctly guessed (position and letter) turns green (in T-SQL version, the letter is enclosed in [[ A ]]), 
+1. a letter that is correct but placed in wrong wrong position turns yellos (in T-SQL version, 
+1. a letter is enclosed in {{ A }}) and an incorrect letter turns gray (in T-SQL version, the letter is enclosed in ' A ').
 
 
 
