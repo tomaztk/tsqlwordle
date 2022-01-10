@@ -9,13 +9,13 @@ Original Wordle gameplay outlook:
 
 ## About the game
 
-It is a word guessing game. You have to quess the Wordle in six (or less) tries. Words must be in the thesaurus list, based on the dictionary. A letter that is correctly guessed (position and letter) turns green (in T-SQL version, the letter is enclosed in [[ A ]]), a letter that is correct but placed in wrong wrong position turns yellos (in T-SQL version, the letter is enclosed in {{ A }}) and an incorrect letter turns gray (in T-SQL version, the letter is enclosed in ' A ').
+It is a word guessing game. You have to guess the Wordle in six (or less) tries. Words must be in the thesaurus list, based on the dictionary. A letter that is correctly guessed (position and letter) turns green (in T-SQL version, the letter is enclosed in [[ A ]]), a letter that is correct but placed in wrong wrong position turns yellos (in T-SQL version, the letter is enclosed in {{ A }}) and an incorrect letter turns gray (in T-SQL version, the letter is enclosed in ' A ').
 
 
 
 ## Installation
 
-Game has a single procedures. The initialization of the thesaurus (list of the words for a given language) is done by running the script ```setup.SQL```.
+Game has a single procedure. The initialization of the thesaurus (list of the words for a given language) is done by running the script ```setup.SQL```.
 
 You will be able to install the language pack with:
 ```
